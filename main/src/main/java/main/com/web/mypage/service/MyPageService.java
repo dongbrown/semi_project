@@ -4,10 +4,14 @@ import static main.com.web.common.JDBCTemplate.close;
 import static main.com.web.common.JDBCTemplate.commit;
 import static main.com.web.common.JDBCTemplate.getConnection;
 import static main.com.web.common.JDBCTemplate.rollback;
+import static main.com.web.common.SessionTemplate.getSession;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
 
 import main.com.web.enjoy.dto.Cafe;
 import main.com.web.mypage.dao.MyPageDao;
@@ -19,11 +23,7 @@ import main.com.web.review.dto.Review;
 
 public class MyPageService {
 	
-	private MyPageDao dao;
-	
-	public MyPageService() {
-		dao = new MyPageDao();
-	}
+	private MyPageDao dao = new MyPageDao();
 
 	
 	public int updateMember(String memberId, String newName, String newPassword, String newPhone) {
@@ -45,11 +45,11 @@ public class MyPageService {
 	}
 
 
-	public List<Review> selectMyReview(int loginMemberNo) {
-		Connection conn = getConnection();
-		List<Review> reviews = dao.selectMyReview(conn, loginMemberNo);
+	public List<Review> selectMyReview(int loginMemberNo, Map<String, Integer> page) {
+		SqlSession session = getSession();
+		List<Review> reviews = dao.selectMyReview(session, page, loginMemberNo);
 		if(reviews.isEmpty()) System.out.println("조회된 리뷰 없음");
-		close(conn);
+		session.close();
 		return reviews;
 	}
 	
@@ -142,6 +142,14 @@ public class MyPageService {
 		Connection conn = getConnection();
 		int result = dao.selectReservationCount(conn);
 		close(conn);
+		return result;
+	}
+
+
+	public int selectReviewCount() {
+		SqlSession session = getSession();
+		int result = dao.selectReviewCount(session);
+		session.close();
 		return result;
 	}
 

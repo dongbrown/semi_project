@@ -11,6 +11,8 @@
 	List<Cafe> cafes = (List<Cafe>)request.getAttribute("cafes");
 	int no = 1;
 %>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
 
 <section class="sectionflex">
 	<aside class="aside">
@@ -82,6 +84,7 @@
 				</tbody>
 			</table>
 		</div>
+		${pageBar }
 	</main>
 </section>
 

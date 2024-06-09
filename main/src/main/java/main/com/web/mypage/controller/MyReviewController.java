@@ -2,6 +2,7 @@ package main.com.web.mypage.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,7 +22,7 @@ import main.com.web.review.dto.Review;
 @WebServlet("/mypage/myReviewPage")
 public class MyReviewController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    private MyPageService service = new MyPageService();
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -45,8 +46,66 @@ public class MyReviewController extends HttpServlet {
 		
 		int loginMemberNo = loginMember.getMemberNo();
 		
-		List<Review> reviews = new MyPageService().selectMyReview(loginMemberNo);
+		int cPage = 1, numPerpage = 5;
+		try {
+			cPage = Integer.parseInt(request.getParameter("cPage"));
+		}catch(NumberFormatException e) {}
+		try {
+			numPerpage = Integer.parseInt(request.getParameter("numPerpage"));
+		}catch (NumberFormatException e) {}
+		
+		Map<String, Integer> page = Map.of("cPage", cPage, "numPerpage", numPerpage);
+		
+		//내가 작성한 리뷰 리스트
+		List<Review> reviews = service.selectMyReview(loginMemberNo, page);
 		request.setAttribute("reviews", reviews);	
+		
+		//내가 작성한 리뷰 수
+		int totalData = service.selectReviewCount();
+		
+		int totalPage=(int)Math.ceil((double)totalData/numPerpage);
+		int pageBarSize=5;
+		int pageNo=((cPage-1)/pageBarSize)*pageBarSize+1;
+		int pageEnd=pageNo+pageBarSize-1;
+		String pageBar="<ul class='pagination justify-content pagination-sm'>";
+		if(pageNo==1) {
+
+			pageBar+="""
+					<li class='page-item disabled'>
+					<a class='page-link' href='#'>이전</a>
+					</li>
+					""";
+		}else {
+			pageBar+="<li class='page-item'>";
+			pageBar+="<a class='page-link' href='"+request.getRequestURI()+"?cPage="+(pageNo-1)+"'>이전</a></li>";
+		}
+		
+		while(!(pageNo>pageEnd||pageNo>totalPage)) {
+			if(cPage==pageNo) {
+				pageBar+="<li class='page-item disabled'>";
+				pageBar+="<a class='page-link' href='#'>"+pageNo+"</a></li>";
+			}else {
+				pageBar+="<li class='page-item'>";
+				pageBar+="<a class='page-link' href='"+request.getRequestURI()+"?cPage="+(pageNo)+"'>"+pageNo+"</a></li>";
+			}
+			pageNo++;
+		}
+		
+		if(pageNo>totalPage) {
+			pageBar+="""
+					<li class='page-item disabled'>
+					<a class='page-link' href='#'>다음</a>
+					</li>
+					""";
+		}else {
+			pageBar+="<li class='page-item'>";
+			pageBar+="<a class='page-link' href='"+request.getRequestURI()+"?cPage="+(pageNo+1)+"'>다음</a></li>";
+		}
+		pageBar+="</ul>";
+		request.setAttribute("pageBar", pageBar);
+		
+		
+		
 		
 		List<Cafe> cafes = new MyPageService().selectMyCafes(loginMemberNo);
 		request.setAttribute("cafes", cafes);

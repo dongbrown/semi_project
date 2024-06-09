@@ -30,7 +30,7 @@
  
      <div id="mainText">
                   
-                </div>
+                </div>`
     <section class="main-section">
                 
         <div class="main-content ">

@@ -1,6 +1,6 @@
 package main.com.web.mypage.dao;
 
-import static main.com.web.common.JDBCTemplate.*;
+import static main.com.web.common.JDBCTemplate.close;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,7 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.SqlSession;
 
 import main.com.web.enjoy.dto.Cafe;
 import main.com.web.member.dao.MemberDao;
@@ -139,26 +143,9 @@ public class MyPageDao {
 		return reservations;
 	}
 
-	public List<Review> selectMyReview(Connection conn, int loginMemberNo) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		List<Review> reviews = new ArrayList<Review>();
-
-		try {
-			pstmt = conn.prepareStatement(sql.getProperty("selectMyReview"));
-			pstmt.setInt(1, loginMemberNo);
-			rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				reviews.add(MyPageDao.getReview(rs));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs);
-			close(pstmt);
-		}
-		return reviews;
+	public List<Review> selectMyReview(SqlSession session, Map<String, Integer> page, int loginMemberNo) {
+		RowBounds rb = new RowBounds((page.get("cPage") - 1) * page.get("numPerpage"), page.get("numPerpage"));
+		return session.selectList("mypage.selectReviewAll", loginMemberNo, rb);
 	}
 
 	public List<Inquiry> selectMyInquries(Connection conn, int loginMemberNo) {
@@ -318,6 +305,10 @@ public class MyPageDao {
 			close(pstmt);
 		}
 		return result;
+	}
+
+	public int selectReviewCount(SqlSession session) {
+		return session.selectOne("mypage.selectReviewCount");
 	}
 
 

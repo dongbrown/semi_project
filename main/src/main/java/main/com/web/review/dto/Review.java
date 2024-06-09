@@ -17,6 +17,5 @@ public class Review {
 	private String category;
 	//
 	private int entityId; 
-	private int ratingScore;
 
 }
