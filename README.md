@@ -1,4 +1,6 @@
 ## Semi-Project 
+<img width="800" alt="image" src="https://github.com/dongbrown/semi_project/assets/167401654/6fb1a642-80a9-4141-a175-f322ac2cff25">
+
 
 예약/결제 기능 및 관리자 페이지가 있는 호텔 웹사이트입니다.
 <br>Servlet과 JSP를 활용하여 Native하게 구현한 모델입니다.
