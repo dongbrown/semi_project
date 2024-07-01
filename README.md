@@ -23,10 +23,9 @@
 
 
 <br>
-<br>
-https://github-readme-stats.vercel.app/api?username=dongbrown&count_private=true&show_icons=true&theme=onedark&include_all_commits=true
-https://github-readme-stats.vercel.app/api/top-langs/?username=dongbrown&theme=onedark&layout=compact&langs_count=8
-![Dongbrown's GitHub stats](https://github-readme-stats.vercel.app/api?username=dongbrown&count_private=true&show_icons=true&theme=onedark&include_all_commits=true)
+
+![GitHub stats](https://github-readme-stats.vercel.app/api?username=dongbrown)
+
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=dongbrown&theme=onedark&layout=compact&langs_count=8)
 <br>
 
