@@ -51,7 +51,7 @@
 						<th>입실날짜</th>
 						<th>퇴실날짜</th>
 						<th>결제금액</th>
-						<th>예약/결제 취소</th>
+						<th>예약/결제 상태</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -70,8 +70,15 @@
 						<td><%= r.getCheckOutDate() %></td>
 						<td><%= r.getPayPrice() %></td>
 						<td>
-							<button type="button" class="btn"
-								onclick="openModal('<%= r.getReserveNo() %>');">취소</button>
+						<% if(r.getStatus() != null) { %>
+						    <% if(r.getStatus().equals("paid")) { %>
+						        <button type="button" class="btn" onclick="openModal('<%= r.getReserveNo() %>');">취소</button>
+						    <% } else if(r.getStatus().equals("canceled")) { %>
+						        취소 완료
+						    <% } %>
+						<% } else { %>
+						    상태 정보 없음
+						<% } %>
 						</td>
 					</tr>
 					<% no++;

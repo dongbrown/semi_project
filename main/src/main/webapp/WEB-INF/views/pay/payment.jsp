@@ -187,52 +187,7 @@ int totalPrice = Integer.parseInt(request.getParameter("price"));
                 });
             }
 
-            <%--  function requestPayInicis() {
-                IMP.request_pay({
-                    pg : 'html5_inicis.INIpayTest',
-                    pay_method : 'card',
-                    merchant_uid : 'p_' + new Date().getTime(),
-                    name : 'METHOD Hotel',
-                    amount : '<%=totalPrice %>',
-                    buyer_email : '<%=m1.getMemberId()%>',
-                    buyer_name : '<%=m1.getMemberName()%>',
-                    buyer_tel : '<%=m1.getMemberPhone()%>'
-                }, function(rsp) {
-                    if (rsp.success) {
-                        alert('결제가 완료되었습니다.');
 
-                        $.ajax({
-                            url: '<%=request.getContextPath()%>/pay/savepayment',
-                            method: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                imp_uid: rsp.imp_uid,
-                                merchant_uid: rsp.merchant_uid,
-                                payPrice: '<%=totalPrice%>',
-                                paymentMethod: 'html5_inicis',
-                                status: 'paid',
-                                location: '<%=r.getLocation()%>',
-                                roomPeopleNo: <%= roomPeopleNo %>, 
-                                roomNo: <%= r.getRoomNo() %>,
-                                checkInDate: '<%=checkInDate %>', 
-                                checkOutDate: '<%=checkOutDate%>',
-                                bedType: '<%=bedType %>',
-                                car: '<%=car %>'
-                            }),
-                            success: function(response) {
-                                const reserveNo = response.reserveNo;
-                                window.location.href = '<%=request.getContextPath()%>/pay/paycompletePage?reserveNo=' + reserveNo;
-                            },
-                            error: function() {
-                                alert('결제 정보 저장에 실패하였습니다.');
-                            }
-                        });
-
-                    } else {
-                        alert('개발중...');
-                    }
-                });
-            } --%>
         });
     </script>
 </section>

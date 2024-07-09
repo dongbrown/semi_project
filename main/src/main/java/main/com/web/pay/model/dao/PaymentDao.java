@@ -103,9 +103,9 @@ public class PaymentDao {
             pstmt.setString(2, merchantUid);
             pstmt.setInt(3, payPrice);
             pstmt.setString(4, paymentMethod);
-            pstmt.setString(5, status);
-            pstmt.setString(6, location);
-            pstmt.setString(7, reserveNo);
+//            pstmt.setString(5, status);
+            pstmt.setString(5, location);
+            pstmt.setString(6, reserveNo);
             result = pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -209,7 +209,6 @@ public class PaymentDao {
 				.reserveNo(rs.getString("reserveno"))
 				.location(rs.getString("location"))
 				.merchant_uid(rs.getString("merchant_uid"))
-				.status(rs.getString("status"))
 				.build();
 	}
 

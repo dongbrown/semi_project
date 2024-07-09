@@ -28,5 +28,6 @@ public class Reserve {
 	private Date reserveDate;
 	private String requestMemo;
 	private Date updateReserveDate;
+	private String status = "";
 		
 }

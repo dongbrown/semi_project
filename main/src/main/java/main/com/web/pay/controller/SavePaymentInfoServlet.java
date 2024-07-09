@@ -1,19 +1,16 @@
 package main.com.web.pay.controller;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
+import org.json.JSONException;
 import org.json.JSONObject;
-
 import main.com.web.member.dto.Member;
 import main.com.web.pay.model.service.PaymentService;
-import main.com.web.reservation.dto.Reserve;
 import main.com.web.room.dto.Room;
 
 @WebServlet("/pay/savepayment")
@@ -22,27 +19,46 @@ public class SavePaymentInfoServlet extends HttpServlet {
     private PaymentService paymentService = new PaymentService();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 요청 및 응답 설정
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // 요청 본문을 읽어와서 JSON 객체로 변환
+        try {
+            JSONObject json = readJsonFromRequest(request);
+            Member member = getMemberFromSession(request.getSession());
+
+            if (member == null) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not logged in");
+                return;
+            }
+
+            String reserveNo = processPayment(json, member);
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("reserveNo", reserveNo);
+            response.getWriter().write(jsonResponse.toString());
+
+        } catch (JSONException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JSON format");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred while processing the payment");
+        }
+    }
+
+    private JSONObject readJsonFromRequest(HttpServletRequest request) throws IOException, JSONException {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = request.getReader().readLine()) != null) {
             sb.append(line);
         }
-        JSONObject json = new JSONObject(sb.toString());
+        return new JSONObject(sb.toString());
+    }
 
-        // 세션에서 회원 정보 가져오기
-        Member m = new Member();
-        HttpSession session = request.getSession();
-        m = (Member) session.getAttribute("reserveMember");
-        System.out.println(m);
-        
+    private Member getMemberFromSession(HttpSession session) {
+        return (Member) session.getAttribute("reserveMember");
+    }
 
-        // JSON에서 필요한 데이터 추출
+    private String processPayment(JSONObject json, Member member) throws Exception {
         String impUid = json.getString("imp_uid");
         String merchantUid = json.getString("merchant_uid");
         int payPrice = json.getInt("payPrice");
@@ -57,27 +73,17 @@ public class SavePaymentInfoServlet extends HttpServlet {
         String checkInDate = json.getString("checkInDate");
         String checkOutDate = json.getString("checkOutDate");
 
-        // Room 객체 조회
-        Room r = paymentService.selectRoom(roomNo);
+        Room room = paymentService.selectRoom(roomNo);
 
-        // 예약 정보 삽입 및 예약 번호 가져오기
-        String reserveNo = paymentService.insertReservationInfo(m, r, checkInDate, checkOutDate, roomPeopleNo, roomRequest, bedType);
+        String reserveNo = paymentService.insertReservationInfo(member, room, checkInDate, checkOutDate, roomPeopleNo, roomRequest, bedType);
 
-        // 결제 정보 저장
         boolean paymentResult = paymentService.savePaymentInfo(impUid, merchantUid, payPrice, paymentMethod, status, location, reserveNo);
+        boolean reserveDetailResult = paymentService.insertReservationDetail(reserveNo, room, roomRequest, bedType, car, roomPeopleNo);
 
-        // 예약 상세 저장 
-        boolean reserveDetailResult = paymentService.insertReservationDetail(reserveNo, r, roomRequest, bedType, car, roomPeopleNo);
-
-        // 결과에 따라 응답 처리 
-        if (paymentResult && reserveDetailResult) {
-            // JSON 형태로 응답하기 위해 JSON 객체 생성
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("reserveNo", reserveNo);
-            response.getWriter().write(jsonResponse.toString());
-        } else {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "결제 정보 저장에 실패하였습니다.");
+        if (!paymentResult || !reserveDetailResult) {
+            throw new Exception("Failed to save payment or reservation details");
         }
-    }
 
+        return reserveNo;
+    }
 }

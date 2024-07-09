@@ -21,7 +21,6 @@ public class Payment {
 	private String reserveNo;
 	private String location;
 	private String merchant_uid;
-	private String status;
 	
 	
 }
